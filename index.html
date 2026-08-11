@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-950">
+<html lang="id" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GaleriMug OS - Operating System Advertising & Merchandise</title>
+    <title>GaleriMug OS - Smart Merchandise Platform</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857' },
+                        accent: { 500: '#6366f1', 600: '#4f46e5' }
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -14,7 +26,7 @@
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- jsPDF for Quotation PDF Generator -->
+    <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- Google Fonts -->
@@ -23,136 +35,140 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
     </style>
 </head>
-<body class="h-full text-slate-100 antialiased bg-slate-950 flex flex-col">
+<body class="h-full text-slate-800 antialiased bg-slate-50 flex flex-col">
 
-    <!-- HEADER / TOPBAR -->
-    <header class="bg-slate-900 border-b border-slate-800 px-4 lg:px-8 py-3.5 flex items-center justify-between shrink-0">
+    <!-- TOPBAR NAVBAR -->
+    <header class="bg-white border-b border-slate-200 px-4 lg:px-8 py-3.5 flex items-center justify-between shrink-0 shadow-sm">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center font-black text-slate-950 text-xl shadow-lg shadow-amber-500/20">
+            <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center font-black text-white text-xl shadow-md shadow-brand-500/20">
                 ☕
             </div>
             <div>
-                <h1 class="font-extrabold text-base lg:text-lg leading-tight text-white flex items-center gap-2">
-                    GaleriMug <span class="bg-amber-500/10 text-amber-400 text-xs px-2 py-0.5 rounded-md border border-amber-500/20 font-mono">PRO System</span>
+                <h1 class="font-extrabold text-base lg:text-lg leading-tight text-slate-900 flex items-center gap-2">
+                    GaleriMug <span class="bg-brand-50 text-brand-700 text-xs px-2 py-0.5 rounded-md border border-brand-200 font-mono">PRO v2.0</span>
                 </h1>
-                <p class="text-[11px] text-slate-400">Order Management & Automated Production</p>
+                <p class="text-[11px] text-slate-500">Integrated Order & Production System</p>
             </div>
         </div>
 
-        <!-- Mode Switcher -->
-        <div class="flex items-center bg-slate-950 p-1 rounded-2xl border border-slate-800">
-            <button id="navAdmin" onclick="switchTab('admin')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 bg-amber-500 text-slate-950 shadow-md">
-                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <!-- Mode Navigation -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button id="navAdmin" onclick="switchTab('admin')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 bg-white text-slate-900 shadow-sm">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 text-brand-600"></i>
                 <span class="hidden sm:inline">Dashboard Admin</span>
             </button>
-            <button id="navTrack" onclick="switchTab('track')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 text-slate-400 hover:text-white">
-                <i data-lucide="search" class="w-4 h-4"></i>
-                <span>Cek Order (Pelanggan)</span>
+            <button id="navTrack" onclick="switchTab('track')" class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 text-slate-600 hover:text-slate-900">
+                <i data-lucide="search" class="w-4 h-4 text-accent-600"></i>
+                <span>Portal Tracking Pelanggan</span>
             </button>
         </div>
     </header>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- MAIN CONTAINER -->
     <main class="flex-1 overflow-hidden p-4 lg:p-6 relative">
 
-        <!-- TAB 1: DASHBOARD ADMIN & DIREKTORI ORDER -->
+        <!-- ================= VIEW 1: DASHBOARD ADMIN ================= -->
         <section id="viewAdmin" class="h-full flex flex-col gap-4">
-            <!-- Toolbar Action & Filter -->
-            <div class="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <!-- Filter & Action Bar -->
+            <div class="bg-white border border-slate-200 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-sm">
                 <div class="flex items-center space-x-3 flex-1 min-w-[280px]">
                     <div class="relative w-full max-w-xs">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                        <input type="text" id="adminSearchInput" onkeyup="filterOrders()" placeholder="Cari ID Order / Nama / No HP..." class="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-10 pr-4 py-2 text-xs text-white outline-none focus:border-amber-500 transition">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" id="adminSearchInput" onkeyup="filterOrders()" placeholder="Cari ID Order / Pembeli / Perusahaan..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-800 outline-none focus:border-brand-500 transition">
                     </div>
-                    <span class="text-xs text-slate-400 hidden sm:inline">Total: <b id="totalOrderCount" class="text-amber-400">0</b> Order</span>
+                    <span class="text-xs text-slate-500 hidden sm:inline">Total: <b id="totalOrderCount" class="text-brand-600">0</b> Pesanan</span>
                 </div>
 
-                <div class="flex items-center space-x-2">
-                    <button onclick="openModalNewOrder()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-2xl transition flex items-center space-x-2 shadow-lg shadow-amber-500/20">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                        <span>+ Buat Order Baru</span>
-                    </button>
-                </div>
+                <button onclick="openModalNewOrder()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center space-x-2 shadow-md shadow-brand-500/20">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>+ Buat Pesanan Baru</span>
+                </button>
             </div>
 
-            <!-- Table List Order -->
-            <div class="flex-1 bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden flex flex-col">
+            <!-- Table Order -->
+            <div class="flex-1 bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col shadow-sm">
                 <div class="overflow-x-auto custom-scrollbar flex-1">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-950/80 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800 sticky top-0 backdrop-blur-md">
+                        <thead class="bg-slate-100 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200 sticky top-0">
                             <tr>
-                                <th class="p-4">ID & Pelanggan</th>
-                                <th class="p-4">Item & Jumlah</th>
-                                <th class="p-4">Total & DP</th>
+                                <th class="p-4">ID & Pembeli</th>
+                                <th class="p-4">Kontak & Alamat</th>
+                                <th class="p-4">Detail Pesanan</th>
+                                <th class="p-4">Pembayaran</th>
                                 <th class="p-4">Status Produksi</th>
-                                <th class="p-4">Fitur Pintar (1-5)</th>
-                                <th class="p-4 text-right">Aksi</th>
+                                <th class="p-4 text-right">Aksi & Integrasi</th>
                             </tr>
                         </thead>
-                        <tbody id="orderTableBody" class="divide-y divide-slate-800/60 font-medium">
-                            <!-- Render via JavaScript -->
+                        <tbody id="orderTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+                            <!-- Render via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 2: PORTAL TRACKING PELANGGAN (FITUR 1 & 2) -->
-        <section id="viewTrack" class="h-full max-w-2xl mx-auto flex flex-col gap-4 hidden">
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center space-y-4">
-                <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto border border-amber-500/20">
+        <!-- ================= VIEW 2: PORTAL TRACKING PELANGGAN ================= -->
+        <section id="viewTrack" class="h-full max-w-4xl mx-auto flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1 hidden">
+            <!-- Header Search Tracking -->
+            <div class="bg-white border border-slate-200 p-6 rounded-2xl text-center space-y-4 shadow-sm">
+                <div class="w-12 h-12 bg-brand-50 text-brand-600 rounded-xl flex items-center justify-center mx-auto border border-brand-100">
                     <i data-lucide="package-search" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-white">Portal Tracking & ACC Desain</h2>
-                    <p class="text-xs text-slate-400 mt-1">Masukkan Nomor ID Order kamu untuk cek status & ACC mockup digital.</p>
+                    <h2 class="text-lg font-extrabold text-slate-900">Portal Pelanggan GaleriMug</h2>
+                    <p class="text-xs text-slate-500 mt-1">Lacak progres pengerjaan & lakukan ACC desain mockup kamu di sini.</p>
                 </div>
 
                 <div class="flex gap-2 max-w-md mx-auto">
-                    <input type="text" id="trackInputId" placeholder="Contoh: GM-1001" class="flex-1 bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-amber-500 uppercase font-mono tracking-wider">
-                    <button onclick="executeTrack()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-3 rounded-2xl font-bold text-xs transition">
-                        Lacak Order
+                    <input type="text" id="trackInputId" placeholder="Masukkan ID Order (Contoh: GM-1001)" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 outline-none focus:border-brand-500 uppercase font-mono tracking-wider">
+                    <button onclick="executeTrack()" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition">
+                        Lacak Pesanan
                     </button>
                 </div>
             </div>
 
-            <!-- Result Card Tracking -->
-            <div id="trackResultContainer" class="hidden flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-1">
+            <!-- Detail Pesanan & Progress Box -->
+            <div id="trackResultContainer" class="hidden space-y-4">
                 <!-- Status Stepper -->
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl space-y-4">
-                    <div class="flex justify-between items-start border-b border-slate-800 pb-3">
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl space-y-4 shadow-sm">
+                    <div class="flex flex-wrap justify-between items-start border-b border-slate-100 pb-4 gap-2">
                         <div>
-                            <span id="resOrderId" class="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">GM-XXXX</span>
-                            <h3 id="resCustName" class="text-base font-bold text-white mt-2">Nama Pelanggan</h3>
+                            <span id="resOrderId" class="font-mono text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">GM-XXXX</span>
+                            <h3 id="resCustName" class="text-base font-bold text-slate-900 mt-2">Nama Pembeli / Perusahaan</h3>
+                            <p id="resCustAddress" class="text-xs text-slate-500">Alamat Pengiriman</p>
                         </div>
                         <div class="text-right">
-                            <p class="text-[10px] text-slate-400">Total Tagihan</p>
-                            <p id="resTotal" class="text-sm font-extrabold text-emerald-400">Rp 0</p>
+                            <p class="text-[11px] text-slate-400">Total Tagihan</p>
+                            <p id="resTotal" class="text-base font-extrabold text-slate-900">Rp 0</p>
+                            <p id="resPaymentStatus" class="text-[11px] text-brand-600 font-bold">DP: Rp 0</p>
                         </div>
                     </div>
 
-                    <!-- Stepper Bar -->
-                    <div class="py-2">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-3">Progress Pengerjaan</p>
-                        <div id="statusStepper" class="grid grid-cols-4 gap-2 text-center text-[10px]">
-                            <!-- Status Stepper Items Dynamic -->
+                    <!-- Progress Stepper -->
+                    <div>
+                        <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider mb-2">Progres Produksi</p>
+                        <div id="statusStepper" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                            <!-- Render via JS -->
                         </div>
                     </div>
                 </div>
 
-                <!-- Digital Proofing & Approval (Fitur 2) -->
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl space-y-4">
-                    <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
-                        <i data-lucide="check-check" class="w-4 h-4 text-amber-400"></i>
-                        <h4 class="font-bold text-xs text-white">ACC Desain / Mockup Digital</h4>
+                <!-- ACC Desain & Preview Box -->
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl space-y-4 shadow-sm">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 text-brand-600"></i>
+                            <h4 class="font-bold text-sm text-slate-900">Persetujuan & ACC Desain Mockup</h4>
+                        </div>
+                        <span id="accBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Menunggu ACC</span>
                     </div>
 
-                    <div id="mockupPreviewBox" class="bg-slate-950 rounded-2xl border border-slate-800 p-4 text-center min-h-[200px] flex flex-col items-center justify-center">
-                        <!-- Render Mockup Image -->
+                    <div id="mockupPreviewBox" class="bg-slate-50 rounded-xl border border-slate-200 p-6 text-center min-h-[220px] flex flex-col items-center justify-center">
+                        <!-- Mockup Image & Action Button Render via JS -->
                     </div>
                 </div>
             </div>
@@ -160,130 +176,142 @@
 
     </main>
 
-    <!-- MODAL 1: BUAT ORDER BARU -->
-    <div id="modalOrder" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                    <i data-lucide="shopping-bag" class="w-4 h-4 text-amber-400"></i>
-                    <span>Input Order Baru GaleriMug</span>
+    <!-- ================= MODAL: INPUT ORDER BARU (DETAIL LENGKAP) ================= -->
+    <div id="modalOrder" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-2xl rounded-2xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-sm text-slate-900 flex items-center space-x-2">
+                    <i data-lucide="user-plus" class="w-4 h-4 text-brand-600"></i>
+                    <span>Input Data Order & Pembeli Lengkap</span>
                 </h3>
-                <button onclick="closeModal('modalOrder')" class="text-slate-400 hover:text-white">✕</button>
+                <button onclick="closeModal('modalOrder')" class="text-slate-400 hover:text-slate-600">✕</button>
             </div>
 
-            <form onsubmit="submitNewOrder(event)" class="space-y-3 text-xs">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-slate-400 mb-1 font-semibold">Nama Pelanggan / Perusahaan</label>
-                        <input type="text" id="inputCustName" placeholder="PT KPC / Budi" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-amber-500">
+            <form onsubmit="submitNewOrder(event)" class="space-y-4 text-xs">
+                <!-- Section 1: Data Pembeli -->
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-700 uppercase tracking-wider text-[10px] text-brand-600">1. Profil Pembeli & Perusahaan</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Nama Pembeli / Perusahaan *</label>
+                            <input type="text" id="inputCustName" placeholder="Contoh: PT KPC / Budi Santoso" required class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Nama PIC (Kontak Person) *</label>
+                            <input type="text" id="inputPicName" placeholder="Contoh: Mbak Rina (HRD)" required class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">No. WhatsApp *</label>
+                            <input type="text" id="inputCustPhone" placeholder="08123456789" required class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Email Pembeli (Opsional)</label>
+                            <input type="email" id="inputCustEmail" placeholder="pembeli@perusahaan.com" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-slate-400 mb-1 font-semibold">No. WhatsApp (Aktif)</label>
-                        <input type="text" id="inputCustPhone" placeholder="08123456789" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-amber-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-slate-400 mb-1 font-semibold">Tipe Mug</label>
-                        <select id="inputMugType" onchange="calculateFormTotal()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-amber-500">
-                            <option value="Mug Standard Putih">Mug Standard Putih</option>
-                            <option value="Mug Enamel Outdoor">Mug Enamel Outdoor</option>
-                            <option value="Mug Magic (Heat Sensitive)">Mug Magic (Berubah Warna)</option>
-                            <option value="Mug Two-Tone Color">Mug Two-Tone Inner Color</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-slate-400 mb-1 font-semibold">Kemasan Box</label>
-                        <select id="inputPackaging" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-amber-500">
-                            <option value="Standar Box Putih">Standar Box Putih</option>
-                            <option value="Custom Box Craft Window">Custom Box Craft Window</option>
-                            <option value="Exclusive Gift Box">Exclusive Gift Box</option>
-                        </select>
+                        <label class="block text-slate-600 mb-1 font-semibold">Alamat Pengiriman Lengkap *</label>
+                        <input type="text" id="inputAddress" placeholder="Jl. Yos Sudarso No. 12, Sangatta Utara" required class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-slate-400 mb-1 font-semibold">Jumlah (Pcs)</label>
-                        <input type="number" id="inputQty" value="12" min="1" oninput="calculateFormTotal()" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-slate-400 mb-1 font-semibold">Harga / Pcs (Rp)</label>
-                        <input type="number" id="inputUnitPrice" value="25000" oninput="calculateFormTotal()" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-slate-400 mb-1 font-semibold">Uang Muka / DP (Rp)</label>
-                        <input type="number" id="inputDP" value="100000" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-amber-500">
+                <!-- Section 2: Detail Produk & Janji Selesai -->
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-700 uppercase tracking-wider text-[10px] text-brand-600">2. Detail Produk & Target Deadline</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Tipe Mug *</label>
+                            <select id="inputMugType" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                                <option value="Mug Standard Putih">Mug Standard Putih</option>
+                                <option value="Mug Enamel Outdoor">Mug Enamel Outdoor</option>
+                                <option value="Mug Magic (Heat Sensitive)">Mug Magic (Berubah Warna)</option>
+                                <option value="Mug Two-Tone Color">Mug Two-Tone Inner Color</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Kemasan Box *</label>
+                            <select id="inputPackaging" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                                <option value="Standar Box Putih">Standar Box Putih</option>
+                                <option value="Custom Box Craft Window">Custom Box Craft Window</option>
+                                <option value="Exclusive Gift Box">Exclusive Gift Box</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Deadline Selesai *</label>
+                            <input type="date" id="inputDeadline" required class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex justify-between items-center font-bold">
-                    <span class="text-slate-400">Total Tagihan:</span>
-                    <span id="formTotalDisplay" class="text-amber-400 text-sm">Rp 300.000</span>
+                <!-- Section 3: Keuangan -->
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-700 uppercase tracking-wider text-[10px] text-brand-600">3. Rincian Keuangan & Pembayaran</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Jumlah (Pcs) *</label>
+                            <input type="number" id="inputQty" value="12" min="1" oninput="calculateFormTotal()" required class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Harga/Pcs (Rp) *</label>
+                            <input type="number" id="inputUnitPrice" value="25000" oninput="calculateFormTotal()" required class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Uang Muka/DP (Rp) *</label>
+                            <input type="number" id="inputDP" value="100000" oninput="calculateFormTotal()" required class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 mb-1 font-semibold">Metode Bayar</label>
+                            <select id="inputPaymentMethod" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500">
+                                <option value="Transfer Bank">Transfer Bank</option>
+                                <option value="Tunai / Cash">Tunai / Cash</option>
+                                <option value="QRIS">QRIS</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center font-bold">
+                        <span class="text-slate-500">Total: <b id="formTotalDisplay" class="text-slate-900">Rp 300.000</b></span>
+                        <span class="text-rose-600">Sisa Pelunasan: <b id="formBalanceDisplay">Rp 200.000</b></span>
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block text-slate-400 mb-1 font-semibold">Catatan Pengerjaan / Desain</label>
-                    <textarea id="inputNotes" rows="2" placeholder="Cetak 2 sisi, cetakan logo K3 Sangatta..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white outline-none focus:border-amber-500"></textarea>
+                    <label class="block text-slate-600 mb-1 font-semibold">Catatan Khusus Desain / Pengerjaan</label>
+                    <textarea id="inputNotes" rows="2" placeholder="Catatan logo K3, posisi gagang, dll..." class="w-full bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-brand-500"></textarea>
                 </div>
 
-                <div class="pt-2">
-                    <button id="btnSubmitOrder" type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-xl shadow-lg shadow-amber-500/20 transition">
-                        Simpan & Terbitkan Order
-                    </button>
-                </div>
+                <button id="btnSubmitOrder" type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-3 rounded-xl shadow-md transition">
+                    Simpan Order & Terbitkan Link WA
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- MODAL 2: UPLOAD ASSET & DIGITAL PROOFING (FITUR 2, 4, 5) -->
-    <div id="modalAssets" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                    <i data-lucide="folder-up" class="w-4 h-4 text-amber-400"></i>
-                    <span>Kelola File & Aset: <span id="assetModalOrderId" class="text-amber-400">GM-XXXX</span></span>
-                </h3>
-                <button onclick="closeModal('modalAssets')" class="text-slate-400 hover:text-white">✕</button>
+    <!-- MODAL: UPLOAD MOCKUP DESAIN (FOR ADMIN) -->
+    <div id="modalUpload" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-sm text-slate-900">Upload Mockup Desain (<span id="uploadOrderId" class="text-brand-600"></span>)</h3>
+                <button onclick="closeModal('modalUpload')" class="text-slate-400 hover:text-slate-600">✕</button>
             </div>
 
             <div class="space-y-3 text-xs">
-                <!-- Fitur 2: Upload Mockup 3D -->
-                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
-                    <label class="block font-bold text-slate-300">1. Upload Mockup (ACC Desain Pelanggan)</label>
-                    <input type="file" id="fileMockup" accept="image/*" class="w-full text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-slate-800 file:text-amber-400">
-                    <button onclick="uploadAsset('mockup')" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-1.5 rounded-xl border border-amber-500/20">
-                        Upload Mockup ACC
-                    </button>
+                <div>
+                    <label class="block text-slate-600 mb-1 font-semibold">Pilih File Gambar Mockup (JPG/PNG)</label>
+                    <input type="file" id="inputMockupFile" accept="image/*" class="w-full text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-100 file:text-brand-700 font-medium">
                 </div>
+                <div class="text-[11px] text-slate-400">Atau tempel Link URL Gambar Mockup jika ada:</div>
+                <input type="text" id="inputMockupUrl" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-800 outline-none">
 
-                <!-- Fitur 4: Upload File Siap Cetak (Cloud Storage) -->
-                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
-                    <label class="block font-bold text-slate-300">2. Upload File Master Siap Cetak (PDF/AI/PNG)</label>
-                    <input type="file" id="filePrint" class="w-full text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-slate-800 file:text-teal-400">
-                    <button onclick="uploadAsset('print')" class="w-full bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold py-1.5 rounded-xl border border-teal-500/20">
-                        Simpan ke Cloud Storage
-                    </button>
-                </div>
-
-                <!-- Fitur 5: Foto QC Sebelum Packing -->
-                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
-                    <label class="block font-bold text-slate-300">3. Foto QC Barang Utuh (Proteksi Garansi)</label>
-                    <input type="file" id="fileQC" accept="image/*" class="w-full text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:bg-slate-800 file:text-emerald-400">
-                    <button onclick="uploadAsset('qc')" class="w-full bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold py-1.5 rounded-xl border border-emerald-500/20">
-                        Upload Foto Garansi QC
-                    </button>
-                </div>
+                <button onclick="submitUploadMockup()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl transition">
+                    Simpan Mockup & Minta ACC Pelanggan
+                </button>
             </div>
         </div>
     </div>
 
     <!-- ENGINE SCRIPT -->
     <script>
-        // ==========================================
-        // 1. CONFIGURATION SUPABASE
-        // ==========================================
         const SUPABASE_URL = "https://ztgjmyjrtrlyrgntvtny.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_GGh8txjx_3OFYwmTGdccjQ_zkxRYqep";
 
@@ -293,71 +321,70 @@
         }
 
         let ordersCache = [];
-        let activeAssetOrderId = null;
+        let activeUploadOrderId = null;
 
-        // ==========================================
-        // 2. INIT APP
-        // ==========================================
         window.onload = async function() {
             if (window.lucide) lucide.createIcons();
+            
+            // CEK PARAMETER URL (AUTO REDIRECT KE PORTAL TRACKING DARI LINK WA)
+            const urlParams = new URLSearchParams(window.location.search);
+            const trackParam = urlParams.get('track');
+
             await fetchAllOrders();
-            setupRealtime();
+
+            if (trackParam) {
+                switchTab('track');
+                document.getElementById('trackInputId').value = trackParam;
+                executeTrack();
+            }
         };
 
         async function fetchAllOrders() {
             if (!db) {
-                ordersCache = JSON.parse(localStorage.getItem('galerimug_local_orders')) || [];
+                ordersCache = JSON.parse(localStorage.getItem('galerimug_orders_v2')) || [];
                 renderOrderTable(ordersCache);
                 return;
             }
 
-            const { data, error } = await db.from('galerimug').select('*').order('created_at', { ascending: false });
-            if (!error && data) {
+            const { data } = await db.from('galerimug').select('*').order('created_at', { ascending: false });
+            if (data) {
                 ordersCache = data;
                 renderOrderTable(ordersCache);
             }
         }
 
-        function setupRealtime() {
-            if (!db) return;
-            db.channel('public:galerimug')
-              .on('postgres_changes', { event: '*', schema: 'public', table: 'galerimug' }, () => {
-                  fetchAllOrders();
-              })
-              .subscribe();
-        }
-
-        // ==========================================
-        // 3. RENDER TABLE & DASHBOARD ADMIN
-        // ==========================================
         function renderOrderTable(data) {
             const tbody = document.getElementById('orderTableBody');
             document.getElementById('totalOrderCount').innerText = data.length;
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Belum ada orderan masuk. Klik tombol "+ Buat Order Baru".</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pesanan terdaftar.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = data.map(o => {
-                const isACC = o.status === 'ACC_APPROVED';
-                return `
-                <tr class="hover:bg-slate-800/40 transition">
+            tbody.innerHTML = data.map(o => `
+                <tr class="hover:bg-slate-50 transition">
                     <td class="p-4">
-                        <div class="font-mono font-bold text-amber-400 text-xs">${o.order_id}</div>
-                        <div class="font-bold text-white text-sm">${o.customer_name}</div>
-                        <div class="text-[10px] text-slate-400">${o.customer_phone}</div>
+                        <span class="font-mono font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200 text-[11px]">${o.order_id}</span>
+                        <div class="font-bold text-slate-900 text-sm mt-1">${o.customer_name}</div>
+                        <div class="text-[11px] text-slate-500">PIC: ${o.pic_name || '-'}</div>
+                    </td>
+                    <td class="p-4 text-[11px]">
+                        <div class="font-semibold text-slate-800">${o.customer_phone}</div>
+                        <div class="text-slate-500 truncate max-w-[150px]">${o.customer_address || '-'}</div>
                     </td>
                     <td class="p-4">
-                        <div class="text-white">${o.mug_type}</div>
-                        <div class="text-[10px] text-slate-400">${o.qty} Pcs • ${o.packaging_type}</div>
+                        <div class="font-bold text-slate-800">${o.mug_type}</div>
+                        <div class="text-[11px] text-slate-500">${o.qty} Pcs • ${o.packaging_type}</div>
+                        <div class="text-[10px] text-amber-600 font-semibold">Deadline: ${o.deadline_date || '-'}</div>
                     </td>
                     <td class="p-4">
-                        <div class="text-emerald-400 font-bold">Rp ${Number(o.total_price).toLocaleString('id-ID')}</div>
-                        <div class="text-[10px] text-slate-400">DP: Rp ${Number(o.down_payment).toLocaleString('id-ID')}</div>
+                        <div class="font-extrabold text-slate-900">Rp ${Number(o.total_price).toLocaleString('id-ID')}</div>
+                        <div class="text-[11px] text-brand-600">DP: Rp ${Number(o.down_payment).toLocaleString('id-ID')}</div>
+                        <div class="text-[10px] text-rose-500 font-semibold">Sisa: Rp ${Number(o.remaining_balance || 0).toLocaleString('id-ID')}</div>
                     </td>
                     <td class="p-4">
-                        <select onchange="updateOrderStatus('${o.order_id}', this.value)" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1 text-xs font-bold text-amber-400 outline-none">
+                        <select onchange="updateOrderStatus('${o.order_id}', this.value)" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold text-slate-800 outline-none focus:border-brand-500">
                             <option value="DRAFT" ${o.status==='DRAFT'?'selected':''}>DRAFT</option>
                             <option value="WAITING_ACC" ${o.status==='WAITING_ACC'?'selected':''}>WAITING ACC</option>
                             <option value="ACC_APPROVED" ${o.status==='ACC_APPROVED'?'selected':''}>ACC APPROVED</option>
@@ -366,94 +393,82 @@
                             <option value="DONE" ${o.status==='DONE'?'selected':''}>SELESAI</option>
                         </select>
                     </td>
-                    <td class="p-4 space-y-1">
-                        <!-- Fitur 1: Link WA Tracking -->
-                        <button onclick="sendWaTracking('${o.order_id}', '${o.customer_phone}', '${o.customer_name}')" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[10px] font-bold hover:bg-emerald-500/20 flex items-center gap-1">
-                            <i data-lucide="message-square" class="w-3 h-3"></i> WA Tracking
+                    <td class="p-4 text-right space-y-1">
+                        <button onclick="sendWaTracking('${o.order_id}', '${o.customer_phone}', '${o.customer_name}')" class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded-lg text-[10px] font-bold hover:bg-emerald-100 flex items-center gap-1 ml-auto">
+                            <i data-lucide="message-square" class="w-3 h-3"></i> Kirim WA Tracking
                         </button>
-                        <!-- Fitur 3: Generate PDF Quotation -->
-                        <button onclick="generateQuotationPDF('${o.order_id}')" class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md text-[10px] font-bold hover:bg-amber-500/20 flex items-center gap-1">
-                            <i data-lucide="file-text" class="w-3 h-3"></i> PDF Quote
-                        </button>
-                    </td>
-                    <td class="p-4 text-right space-x-1">
-                        <button onclick="openModalAssets('${o.order_id}')" class="bg-slate-800 text-slate-300 p-2 rounded-xl hover:bg-slate-700" title="Kelola Aset & File">
-                            <i data-lucide="paperclip" class="w-4 h-4"></i>
-                        </button>
-                        <button onclick="deleteOrder('${o.order_id}')" class="bg-slate-800 text-rose-400 p-2 rounded-xl hover:bg-slate-700" title="Hapus">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <button onclick="openModalUpload('${o.order_id}')" class="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-1 rounded-lg text-[10px] font-bold hover:bg-slate-200 flex items-center gap-1 ml-auto">
+                            <i data-lucide="image" class="w-3 h-3"></i> Upload Mockup
                         </button>
                     </td>
                 </tr>
-                `;
-            }).join('');
+            `).join('');
 
             if (window.lucide) lucide.createIcons();
         }
 
-        // ==========================================
-        // 4. SUBMIT ORDER BARU
-        // ==========================================
         function calculateFormTotal() {
             const qty = Number(document.getElementById('inputQty').value) || 0;
             const unitPrice = Number(document.getElementById('inputUnitPrice').value) || 0;
+            const dp = Number(document.getElementById('inputDP').value) || 0;
             const total = qty * unitPrice;
+            const balance = total - dp;
+
             document.getElementById('formTotalDisplay').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+            document.getElementById('formBalanceDisplay').innerText = `Rp ${balance.toLocaleString('id-ID')}`;
         }
 
         async function submitNewOrder(e) {
             e.preventDefault();
-            const btn = document.getElementById('btnSubmitOrder');
-            btn.disabled = true;
-
             const order_id = `GM-${Math.floor(1000 + Math.random() * 9000)}`;
-            const customer_name = document.getElementById('inputCustName').value;
-            const customer_phone = document.getElementById('inputCustPhone').value;
-            const mug_type = document.getElementById('inputMugType').value;
-            const packaging_type = document.getElementById('inputPackaging').value;
             const qty = Number(document.getElementById('inputQty').value);
             const unit_price = Number(document.getElementById('inputUnitPrice').value);
             const total_price = qty * unit_price;
             const down_payment = Number(document.getElementById('inputDP').value);
-            const notes = document.getElementById('inputNotes').value;
+            const remaining_balance = total_price - down_payment;
 
-            const newOrder = {
-                order_id, customer_name, customer_phone, mug_type, packaging_type,
-                qty, unit_price, total_price, down_payment, notes, status: 'DRAFT'
+            const payload = {
+                order_id,
+                customer_name: document.getElementById('inputCustName').value,
+                pic_name: document.getElementById('inputPicName').value,
+                customer_phone: document.getElementById('inputCustPhone').value,
+                customer_email: document.getElementById('inputCustEmail').value,
+                customer_address: document.getElementById('inputAddress').value,
+                mug_type: document.getElementById('inputMugType').value,
+                packaging_type: document.getElementById('inputPackaging').value,
+                deadline_date: document.getElementById('inputDeadline').value,
+                qty, unit_price, total_price, down_payment, remaining_balance,
+                payment_method: document.getElementById('inputPaymentMethod').value,
+                notes: document.getElementById('inputNotes').value,
+                status: 'DRAFT'
             };
 
             if (db) {
-                const { error } = await db.from('galerimug').insert([newOrder]);
-                if (error) alert("Error Supabase: " + error.message);
-                else await fetchAllOrders();
+                await db.from('galerimug').insert([payload]);
             } else {
-                ordersCache.unshift(newOrder);
-                localStorage.setItem('galerimug_local_orders', JSON.stringify(ordersCache));
-                renderOrderTable(ordersCache);
+                ordersCache.unshift(payload);
+                localStorage.setItem('galerimug_orders_v2', JSON.stringify(ordersCache));
             }
 
             closeModal('modalOrder');
-            e.target.reset();
-            btn.disabled = false;
-            alert(`✅ Order ${order_id} Berhasil Diterbitkan!`);
+            await fetchAllOrders();
+            alert(`✅ Order ${order_id} Berhasil Dibuat!`);
         }
 
-        // ==========================================
-        // 5. FITUR 1: TRACKING & WA PORTAL
-        // ==========================================
         function sendWaTracking(orderId, phone, name) {
             let cleanPhone = phone.replace(/[^0-9]/g, '');
             if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.slice(1);
 
+            // LINK TRACKING KHUSUS PELANGGAN
             const trackUrl = `${window.location.origin}${window.location.pathname}?track=${orderId}`;
-            const msg = `Halo Kak ${name},\n\nTerima kasih telah memesan merchandise di *GaleriMug*! ☕\n\nUntuk cek status pengerjaan & melakukan *ACC Desain Mockup Digital*, silakan buka link berikut:\n👉 ${trackUrl}\n\nID Order: *${orderId}*`;
+            const msg = `Halo Kak ${name},\n\nTerima kasih telah memesan di *GaleriMug Sangatta*! ☕\n\nSilakan klik link berikut untuk melihat *Progres Pengerjaan & Melakukan ACC Desain Mockup* pesanan Anda:\n👉 ${trackUrl}\n\nID Pesanan: *${orderId}*`;
 
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         async function executeTrack() {
             const inputId = document.getElementById('trackInputId').value.trim().toUpperCase();
-            if (!inputId) return alert("Masukkan ID Order!");
+            if (!inputId) return;
 
             let order = ordersCache.find(o => o.order_id === inputId);
             if (!order && db) {
@@ -461,163 +476,102 @@
                 order = data;
             }
 
-            if (!order) return alert("⚠️ Order dengan ID tersebut tidak ditemukan!");
+            if (!order) return alert("Order tidak ditemukan!");
 
             document.getElementById('trackResultContainer').classList.remove('hidden');
             document.getElementById('resOrderId').innerText = order.order_id;
             document.getElementById('resCustName').innerText = order.customer_name;
+            document.getElementById('resCustAddress').innerText = `Alamat: ${order.customer_address || '-'}`;
             document.getElementById('resTotal').innerText = `Rp ${Number(order.total_price).toLocaleString('id-ID')}`;
+            document.getElementById('resPaymentStatus').innerText = `DP: Rp ${Number(order.down_payment).toLocaleString('id-ID')} (Sisa: Rp ${Number(order.remaining_balance || 0).toLocaleString('id-ID')})`;
 
-            // Render Stepper
+            // Stepper Render
             const steps = [
                 { id: 'DRAFT', label: '1. Order Masuk' },
                 { id: 'WAITING_ACC', label: '2. ACC Desain' },
-                { id: 'IN_PRODUCTION', label: '3. Cetak Mug' },
+                { id: 'IN_PRODUCTION', label: '3. Proses Cetak' },
                 { id: 'READY', label: '4. Siap Ambil' }
             ];
 
             const currentIdx = steps.findIndex(s => s.id === order.status) !== -1 ? steps.findIndex(s => s.id === order.status) : 1;
 
             document.getElementById('statusStepper').innerHTML = steps.map((s, idx) => `
-                <div class="p-2 rounded-xl border ${idx <= currentIdx ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 font-bold' : 'bg-slate-950 border-slate-800 text-slate-500'}">
+                <div class="p-2.5 rounded-xl border ${idx <= currentIdx ? 'bg-brand-50 border-brand-200 text-brand-700 font-bold' : 'bg-slate-50 border-slate-200 text-slate-400'}">
                     ${s.label}
                 </div>
             `).join('');
 
-            // Render Fitur 2: Mockup ACC Box
+            // Mockup ACC Preview
             const mockupBox = document.getElementById('mockupPreviewBox');
+            const accBadge = document.getElementById('accBadge');
+
             if (order.mockup_url) {
+                if (order.status === 'ACC_APPROVED') {
+                    accBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
+                    accBadge.innerText = "✅ Desain Di-ACC";
+                }
+
                 mockupBox.innerHTML = `
-                    <img src="${order.mockup_url}" class="max-h-60 rounded-xl mx-auto object-contain border border-slate-800 mb-3">
+                    <img src="${order.mockup_url}" class="max-h-64 rounded-xl mx-auto object-contain border border-slate-200 mb-4 shadow-sm">
                     ${order.status === 'ACC_APPROVED' ? 
-                        `<div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30 text-xs font-bold">
-                            ✅ DESAIN DAH DI-ACC PADA: ${new Date(order.approved_at).toLocaleString('id-ID')}
+                        `<div class="bg-emerald-50 text-emerald-700 p-3 rounded-xl border border-emerald-200 text-xs font-bold">
+                            ✅ Desain telah disetujui untuk dicetak pada: ${new Date(order.approved_at || Date.now()).toLocaleString('id-ID')}
                         </div>` :
-                        `<button onclick="approveMockup('${order.order_id}')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-2.5 rounded-xl font-extrabold text-xs shadow-lg shadow-emerald-500/20">
+                        `<button onclick="approveMockup('${order.order_id}')" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-md transition">
                             SETUJUI / ACC DESAIN INI
                         </button>`
                     }
                 `;
             } else {
-                mockupBox.innerHTML = `<p class="text-xs text-slate-500">Desain mockup 3D belum diunggah oleh desainer GaleriMug.</p>`;
+                mockupBox.innerHTML = `<p class="text-xs text-slate-400">Desain mockup 3D belum diunggah oleh desainer GaleriMug.</p>`;
             }
         }
 
-        // FITUR 2: APPROVE DESAIN
         async function approveMockup(orderId) {
-            if (!confirm("Apakah kamu yakin menyetujui desain mockup ini untuk langsung dicetak?")) return;
+            if (!confirm("Apakah Anda yakin menyetujui desain ini untuk diproses ke tahap cetak?")) return;
 
             const now = new Date().toISOString();
             if (db) {
                 await db.from('galerimug').update({ status: 'ACC_APPROVED', approved_at: now }).eq('order_id', orderId);
             }
-            alert("🎉 Terima kasih! ACC Desain tersimpan. Tim produksi akan segera mencetak mug kamu!");
+            alert("🎉 Terima kasih! ACC Desain Anda telah tercatat.");
             executeTrack();
         }
 
-        // ==========================================
-        // 6. FITUR 3: GENERATE QUOTATION PDF (B2B)
-        // ==========================================
-        function generateQuotationPDF(orderId) {
-            const order = ordersCache.find(o => o.order_id === orderId);
-            if (!order) return;
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.setFontSize(18);
-            doc.text("GALERIMUG ADVERTISING", 14, 20);
-            doc.setFontSize(10);
-            doc.text("Jl. Utama Sangatta, Kutai Timur - Kaltim", 14, 26);
-            doc.text("Email: official@galerimug.com | WA: 0812-XXXX-XXXX", 14, 31);
-            doc.line(14, 35, 196, 35);
-
-            doc.setFontSize(14);
-            doc.text("SURAT PENAWARAN & NOTA PEMESANAN", 14, 45);
-
-            doc.setFontSize(10);
-            doc.text(`ID Order   : ${order.order_id}`, 14, 55);
-            doc.text(`Pelanggan  : ${order.customer_name}`, 14, 61);
-            doc.text(`Tanggal    : ${new Date().toLocaleDateString('id-ID')}`, 14, 67);
-
-            doc.rect(14, 75, 182, 40);
-            doc.text(`Item       : ${order.mug_type}`, 18, 83);
-            doc.text(`Kemasan    : ${order.packaging_type}`, 18, 89);
-            doc.text(`Jumlah     : ${order.qty} Pcs`, 18, 95);
-            doc.text(`Harga/Pcs  : Rp ${Number(order.unit_price).toLocaleString('id-ID')}`, 18, 101);
-            doc.text(`Total Tagihan : Rp ${Number(order.total_price).toLocaleString('id-ID')}`, 18, 107);
-
-            doc.text("Hormat Kami,", 140, 130);
-            doc.text("GaleriMug Sangatta", 140, 150);
-
-            doc.save(`Quotation_${order.order_id}.pdf`);
+        function openModalUpload(orderId) {
+            activeUploadOrderId = orderId;
+            document.getElementById('uploadOrderId').innerText = orderId;
+            openModal('modalUpload');
         }
 
-        // ==========================================
-        // 7. FITUR 4 & 5: UPLOAD ASET CLOUD
-        // ==========================================
-        function openModalAssets(orderId) {
-            activeAssetOrderId = orderId;
-            document.getElementById('assetModalOrderId').innerText = orderId;
-            openModal('modalAssets');
+        async function submitUploadMockup() {
+            const urlInput = document.getElementById('inputMockupUrl').value;
+            const fileInput = document.getElementById('inputMockupFile');
+            let finalUrl = urlInput;
+
+            if (fileInput.files[0] && db) {
+                const file = fileInput.files[0];
+                const filePath = `mockup_${activeUploadOrderId}_${Date.now()}.${file.name.split('.').pop()}`;
+                await db.storage.from('galerimug_assets').upload(filePath, file);
+                const { data } = db.storage.from('galerimug_assets').getPublicUrl(filePath);
+                finalUrl = data.publicUrl;
+            }
+
+            if (!finalUrl) return alert("Masukkan URL atau pilih file mockup!");
+
+            if (db) {
+                await db.from('galerimug').update({ mockup_url: finalUrl, status: 'WAITING_ACC' }).eq('order_id', activeUploadOrderId);
+            }
+
+            closeModal('modalUpload');
+            await fetchAllOrders();
+            alert("✅ Mockup Berhasil Diunggah & Status Berubah Menjadi WAITING ACC!");
         }
 
-        async function uploadAsset(type) {
-            if (!db) return alert("Fitur Upload membutuhkan koneksi Supabase!");
-            let fileInput = null;
-            let dbField = "";
-
-            if (type === 'mockup') { fileInput = document.getElementById('fileMockup'); dbField = 'mockup_url'; }
-            if (type === 'print') { fileInput = document.getElementById('filePrint'); dbField = 'print_file_url'; }
-            if (type === 'qc') { fileInput = document.getElementById('fileQC'); dbField = 'qc_photo_url'; }
-
-            if (!fileInput.files[0]) return alert("Pilih file terlebih dahulu!");
-
-            const file = fileInput.files[0];
-            const fileExt = file.name.split('.').pop();
-            const filePath = `${activeAssetOrderId}_${type}_${Date.now()}.${fileExt}`;
-
-            const { data, error } = await db.storage.from('galerimug_assets').upload(filePath, file);
-            if (error) return alert("Upload gagal: " + error.message);
-
-            const { data: publicUrlData } = db.storage.from('galerimug_assets').getPublicUrl(filePath);
-            const publicUrl = publicUrlData.publicUrl;
-
-            let updatePayload = {};
-            updatePayload[dbField] = publicUrl;
-            if (type === 'mockup') updatePayload['status'] = 'WAITING_ACC';
-
-            await db.from('galerimug').update(updatePayload).eq('order_id', activeAssetOrderId);
-            alert("✅ File Aset Berhasil Diunggah ke Cloud Storage!");
-            closeModal('modalAssets');
-            fetchAllOrders();
-        }
-
-        // ==========================================
-        // 8. UTILS & NAVIGATION
-        // ==========================================
         async function updateOrderStatus(orderId, newStatus) {
             if (db) {
                 await db.from('galerimug').update({ status: newStatus }).eq('order_id', orderId);
             }
-        }
-
-        async function deleteOrder(orderId) {
-            if (!confirm(`Hapus order ${orderId}?`)) return;
-            if (db) {
-                await db.from('galerimug').delete().eq('order_id', orderId);
-                await fetchAllOrders();
-            }
-        }
-
-        function filterOrders() {
-            const query = document.getElementById('adminSearchInput').value.toLowerCase();
-            const filtered = ordersCache.filter(o => 
-                o.order_id.toLowerCase().includes(query) || 
-                o.customer_name.toLowerCase().includes(query) ||
-                o.customer_phone.includes(query)
-            );
-            renderOrderTable(filtered);
         }
 
         function switchTab(tab) {
@@ -629,21 +583,13 @@
             if (tab === 'admin') {
                 admin.classList.remove('hidden');
                 track.classList.add('hidden');
-                btnAdmin.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 bg-amber-500 text-slate-950 shadow-md";
-                btnTrack.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 text-slate-400 hover:text-white";
+                btnAdmin.className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 bg-white text-slate-900 shadow-sm";
+                btnTrack.className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 text-slate-600 hover:text-slate-900";
             } else {
                 track.classList.remove('hidden');
                 admin.classList.add('hidden');
-                btnTrack.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 bg-amber-500 text-slate-950 shadow-md";
-                btnAdmin.className = "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 text-slate-400 hover:text-white";
-
-                // Auto Track dari URL Query (misal: ?track=GM-1001)
-                const urlParams = new URLSearchParams(window.location.search);
-                const trackParam = urlParams.get('track');
-                if (trackParam) {
-                    document.getElementById('trackInputId').value = trackParam;
-                    executeTrack();
-                }
+                btnTrack.className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 bg-white text-slate-900 shadow-sm";
+                btnAdmin.className = "px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 text-slate-600 hover:text-slate-900";
             }
         }
 
